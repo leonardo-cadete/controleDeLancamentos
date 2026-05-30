@@ -1,4 +1,4 @@
-using ControleLancamentos.Application.Lancamentos.Abstracoes;
+using ControleLancamentos.Application.Lancamentos.Services;
 using ControleLancamentos.Application.Lancamentos.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +11,7 @@ namespace ControleLancamentos.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/lancamentos")]
-public class LancamentosController(ICriarLancamentoUseCase criarLancamentoUseCase) : ControllerBase
+public class LancamentosController(ICriarLancamentoService criarLancamentoService) : ControllerBase
 {
     /// <summary>
     /// Cria um novo lançamento.
@@ -27,7 +27,7 @@ public class LancamentosController(ICriarLancamentoUseCase criarLancamentoUseCas
         [FromBody] CriarLancamentoRequest request,
         CancellationToken cancellationToken)
     {
-        var response = await criarLancamentoUseCase.ExecutarAsync(request, cancellationToken);
+        var response = await criarLancamentoService.ExecutarAsync(request, cancellationToken);
         return Ok(response);
     }
 }

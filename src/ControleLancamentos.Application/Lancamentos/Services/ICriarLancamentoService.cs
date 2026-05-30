@@ -1,8 +1,8 @@
 using ControleLancamentos.Application.Lancamentos.Dtos;
 
-namespace ControleLancamentos.Application.Lancamentos.Abstracoes;
+namespace ControleLancamentos.Application.Lancamentos.Services;
 
-public interface ICriarLancamentoUseCase
+public interface ICriarLancamentoService
 {
     Task<CriarLancamentoResponse> ExecutarAsync(
         CriarLancamentoRequest request,

@@ -1,11 +1,10 @@
-using ControleLancamentos.Application.Lancamentos.Abstracoes;
 using ControleLancamentos.Application.Lancamentos.Dtos;
 using ControleLancamentos.Application.Lancamentos.Repositorios;
 using ControleLancamentos.Domain.Lancamentos;
 
-namespace ControleLancamentos.Application.Lancamentos.UseCases;
+namespace ControleLancamentos.Application.Lancamentos.Services;
 
-public class CalcularConsolidadoDiarioUseCase(ILancamentoRepositorio repositorio) : ICalcularConsolidadoDiarioUseCase
+public class CalcularConsolidadoDiarioService(ILancamentoRepositorio repositorio) : ICalcularConsolidadoDiarioService
 {
     public async Task<ConsolidadoDiarioResponse> ExecutarAsync(
         ConsolidadoDiarioRequest request,

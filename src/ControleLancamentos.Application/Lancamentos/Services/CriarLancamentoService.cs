@@ -1,11 +1,10 @@
-using ControleLancamentos.Application.Lancamentos.Abstracoes;
 using ControleLancamentos.Application.Lancamentos.Dtos;
 using ControleLancamentos.Application.Lancamentos.Repositorios;
 using ControleLancamentos.Domain.Lancamentos;
 
-namespace ControleLancamentos.Application.Lancamentos.UseCases;
+namespace ControleLancamentos.Application.Lancamentos.Services;
 
-public class CriarLancamentoUseCase(ILancamentoRepositorio repositorio) : ICriarLancamentoUseCase
+public class CriarLancamentoService(ILancamentoRepositorio repositorio) : ICriarLancamentoService
 {
     public async Task<CriarLancamentoResponse> ExecutarAsync(
         CriarLancamentoRequest request,

@@ -1,4 +1,4 @@
-using ControleLancamentos.Application.Lancamentos.Abstracoes;
+using ControleLancamentos.Application.Lancamentos.Services;
 using ControleLancamentos.Application.Lancamentos.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +11,7 @@ namespace ControleLancamentos.Api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/consolidado-diario")]
-public class ConsolidadoDiarioController(ICalcularConsolidadoDiarioUseCase calcularConsolidadoDiarioUseCase) : ControllerBase
+public class ConsolidadoDiarioController(ICalcularConsolidadoDiarioService calcularConsolidadoDiarioService) : ControllerBase
 {
     /// <summary>
     /// Calcula o consolidado diário para uma data específica.
@@ -32,7 +32,7 @@ public class ConsolidadoDiarioController(ICalcularConsolidadoDiarioUseCase calcu
             return BadRequest("A data de referência é obrigatória.");
         }
 
-        var response = await calcularConsolidadoDiarioUseCase.ExecutarAsync(
+        var response = await calcularConsolidadoDiarioService.ExecutarAsync(
             new ConsolidadoDiarioRequest(dataReferencia),
             cancellationToken);
 

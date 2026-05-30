@@ -1,5 +1,4 @@
-using ControleLancamentos.Application.Lancamentos.Abstracoes;
-using ControleLancamentos.Application.Lancamentos.UseCases;
+using ControleLancamentos.Application.Lancamentos.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ControleLancamentos.Application;
@@ -10,8 +9,8 @@ public static class InjecaoDependencias
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddScoped<ICriarLancamentoUseCase, CriarLancamentoUseCase>();
-        services.AddScoped<ICalcularConsolidadoDiarioUseCase, CalcularConsolidadoDiarioUseCase>();
+        services.AddScoped<ICriarLancamentoService, CriarLancamentoService>();
+        services.AddScoped<ICalcularConsolidadoDiarioService, CalcularConsolidadoDiarioService>();
 
         return services;
     }
