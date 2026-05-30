@@ -9,6 +9,10 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__ControleLancamentos: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      Jwt__Issuer: ${JWT__Issuer}
+      Jwt__Audience: ${JWT__Audience}
+      Jwt__Secret: ${JWT__Secret}
+      Jwt__ExpiracaoMinutos: ${JWT__ExpiracaoMinutos}
     depends_on:
       db:
         condition: service_healthy

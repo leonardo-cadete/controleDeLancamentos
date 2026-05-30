@@ -1,7 +1,9 @@
 using System.Text;
 using ControleLancamentos.Application;
 using ControleLancamentos.Infrastructure;
+using ControleLancamentos.Infrastructure.Persistencia;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -71,6 +73,12 @@ builder.Services.AdicionarAplicacao();
 builder.Services.AdicionarInfraestrutura(builder.Configuration);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ControleLancamentosDbContext>();
+    dbContext.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {
