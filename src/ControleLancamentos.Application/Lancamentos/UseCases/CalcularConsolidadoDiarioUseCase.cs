@@ -13,7 +13,7 @@ public class CalcularConsolidadoDiarioUseCase(ILancamentoRepositorio repositorio
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (request.DataReferencia == default)
+        if (request.DataReferencia is null)
         {
             throw new ArgumentException("A data de referência é obrigatória.", nameof(request));
         }
@@ -21,7 +21,7 @@ public class CalcularConsolidadoDiarioUseCase(ILancamentoRepositorio repositorio
         var lancamentos = await repositorio.ListarAsync(cancellationToken);
 
         var lancamentosDoDia = lancamentos
-            .Where(lancamento => DateOnly.FromDateTime(lancamento.DataLancamento) == request.DataReferencia)
+            .Where(lancamento => DateOnly.FromDateTime(lancamento.DataLancamento) == request.DataReferencia.Value)
             .ToList();
 
         var totalCreditos = lancamentosDoDia
@@ -33,7 +33,7 @@ public class CalcularConsolidadoDiarioUseCase(ILancamentoRepositorio repositorio
             .Sum(lancamento => lancamento.Valor);
 
         return new ConsolidadoDiarioResponse(
-            request.DataReferencia,
+            request.DataReferencia.Value,
             totalCreditos,
             totalDebitos,
             totalCreditos - totalDebitos,
