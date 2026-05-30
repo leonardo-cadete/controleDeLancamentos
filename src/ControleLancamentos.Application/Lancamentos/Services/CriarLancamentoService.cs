@@ -1,10 +1,13 @@
 using ControleLancamentos.Application.Lancamentos.Dtos;
+using ControleLancamentos.Application.Lancamentos.Eventos;
 using ControleLancamentos.Application.Lancamentos.Repositorios;
 using ControleLancamentos.Domain.Lancamentos;
 
 namespace ControleLancamentos.Application.Lancamentos.Services;
 
-public class CriarLancamentoService(ILancamentoRepositorio repositorio) : ICriarLancamentoService
+public class CriarLancamentoService(
+    ILancamentoRepositorio repositorio,
+    ILancamentoCriadoEventBus eventBus) : ICriarLancamentoService
 {
     public async Task<CriarLancamentoResponse> ExecutarAsync(
         CriarLancamentoRequest request,
@@ -23,6 +26,13 @@ public class CriarLancamentoService(ILancamentoRepositorio repositorio) : ICriar
 
         await repositorio.AdicionarAsync(lancamento, cancellationToken);
         await repositorio.SalvarAlteracoesAsync(cancellationToken);
+        await eventBus.PublicarAsync(
+            new LancamentoCriadoEvent(
+                lancamento.Id,
+                DateOnly.FromDateTime(lancamento.DataLancamento),
+                lancamento.Valor,
+                lancamento.Tipo),
+            cancellationToken);
 
         return new CriarLancamentoResponse(
             lancamento.Id,

@@ -1,10 +1,9 @@
 using ControleLancamentos.Application.Lancamentos.Dtos;
 using ControleLancamentos.Application.Lancamentos.Repositorios;
-using ControleLancamentos.Domain.Lancamentos;
 
 namespace ControleLancamentos.Application.Lancamentos.Services;
 
-public class CalcularConsolidadoDiarioService(ILancamentoRepositorio repositorio) : ICalcularConsolidadoDiarioService
+public class CalcularConsolidadoDiarioService(IConsolidadoDiarioRepositorio repositorio) : ICalcularConsolidadoDiarioService
 {
     public async Task<ConsolidadoDiarioResponse> ExecutarAsync(
         ConsolidadoDiarioRequest request,
@@ -17,25 +16,13 @@ public class CalcularConsolidadoDiarioService(ILancamentoRepositorio repositorio
             throw new ArgumentException("A data de referência é obrigatória.", nameof(request));
         }
 
-        var lancamentos = await repositorio.ListarAsync(cancellationToken);
-
-        var lancamentosDoDia = lancamentos
-            .Where(lancamento => DateOnly.FromDateTime(lancamento.DataLancamento) == request.DataReferencia.Value)
-            .ToList();
-
-        var totalCreditos = lancamentosDoDia
-            .Where(lancamento => lancamento.Tipo == TipoLancamento.Credito)
-            .Sum(lancamento => lancamento.Valor);
-
-        var totalDebitos = lancamentosDoDia
-            .Where(lancamento => lancamento.Tipo == TipoLancamento.Debito)
-            .Sum(lancamento => lancamento.Valor);
+        var consolidado = await repositorio.ObterPorDataAsync(request.DataReferencia.Value, cancellationToken);
 
         return new ConsolidadoDiarioResponse(
             request.DataReferencia.Value,
-            totalCreditos,
-            totalDebitos,
-            totalCreditos - totalDebitos,
-            lancamentosDoDia.Count);
+            consolidado?.TotalCreditos ?? 0m,
+            consolidado?.TotalDebitos ?? 0m,
+            consolidado?.Saldo ?? 0m,
+            consolidado?.QuantidadeLancamentos ?? 0);
     }
 }

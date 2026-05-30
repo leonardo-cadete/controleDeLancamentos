@@ -1,6 +1,9 @@
+using ControleLancamentos.Application.Lancamentos.Eventos;
 using ControleLancamentos.Application.Lancamentos.Repositorios;
+using ControleLancamentos.Infrastructure.Eventos;
 using ControleLancamentos.Infrastructure.Persistencia;
 using ControleLancamentos.Infrastructure.Repositorios;
+using ControleLancamentos.Infrastructure.Workers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +26,12 @@ public static class InjecaoDependencias
             options.UseNpgsql(connectionString));
 
         services.AddScoped<ILancamentoRepositorio, LancamentoRepositorio>();
+        services.AddScoped<IConsolidadoDiarioRepositorio, ConsolidadoDiarioRepositorio>();
+
+        services.AddSingleton<InMemoryLancamentoCriadoEventBus>();
+        services.AddSingleton<ILancamentoCriadoEventBus>(provider =>
+            provider.GetRequiredService<InMemoryLancamentoCriadoEventBus>());
+        services.AddHostedService<AtualizarConsolidadoDiarioWorker>();
 
         return services;
     }
