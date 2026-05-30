@@ -1,6 +1,6 @@
 using ControleLancamentos.Domain.Lancamentos;
 
-namespace ControleLancamentos.Application.Lancamentos;
+namespace ControleLancamentos.Application.Lancamentos.Repositorios;
 
 public interface ILancamentoRepositorio
 {

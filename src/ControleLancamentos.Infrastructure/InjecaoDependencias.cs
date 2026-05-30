@@ -1,4 +1,4 @@
-using ControleLancamentos.Application.Lancamentos;
+using ControleLancamentos.Application.Lancamentos.Repositorios;
 using ControleLancamentos.Infrastructure.Persistencia;
 using ControleLancamentos.Infrastructure.Repositorios;
 using Microsoft.EntityFrameworkCore;
