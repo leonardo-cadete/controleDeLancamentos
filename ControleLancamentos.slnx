@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ControleLancamentos.Api/ControleLancamentos.Api.csproj" />
+    <Project Path="src/ControleLancamentos.Application/ControleLancamentos.Application.csproj" />
+    <Project Path="src/ControleLancamentos.Domain/ControleLancamentos.Domain.csproj" />
+    <Project Path="src/ControleLancamentos.Infrastructure/ControleLancamentos.Infrastructure.csproj" />
+  </Folder>
+</Solution>
