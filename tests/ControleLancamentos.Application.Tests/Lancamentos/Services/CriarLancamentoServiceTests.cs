@@ -3,6 +3,7 @@ using ControleLancamentos.Application.Lancamentos.Eventos;
 using ControleLancamentos.Application.Lancamentos.Repositorios;
 using ControleLancamentos.Application.Lancamentos.Services;
 using ControleLancamentos.Domain.Lancamentos;
+using NSubstitute;
 
 namespace ControleLancamentos.Application.Tests.Lancamentos.Services;
 
@@ -13,8 +14,8 @@ public class CriarLancamentoServiceTests
     public async Task ExecutarAsync_QuandoDadosForemValidos_DevePersistirEPublicarEvento()
     {
         // Arrange
-        var repositorio = new LancamentoRepositorioEmMemoria();
-        var eventBus = new EventBusEmMemoria();
+        var repositorio = Substitute.For<ILancamentoRepositorio>();
+        var eventBus = Substitute.For<ILancamentoCriadoEventBus>();
         var service = new CriarLancamentoService(repositorio, eventBus);
         var request = new CriarLancamentoRequest
         {
@@ -28,24 +29,31 @@ public class CriarLancamentoServiceTests
         var response = await service.ExecutarAsync(request);
 
         // Assert
-        Assert.That(repositorio.LancamentosPersistidos, Has.Count.EqualTo(1));
-        Assert.That(repositorio.SalvarAlteracoesChamado, Is.True);
-        Assert.That(eventBus.EventosPublicados, Has.Count.EqualTo(1));
-
-        var evento = eventBus.EventosPublicados.Single();
-        Assert.That(evento.LancamentoId, Is.EqualTo(response.Id));
-        Assert.That(evento.Valor, Is.EqualTo(request.Valor));
-        Assert.That(evento.Tipo, Is.EqualTo(request.Tipo));
-        Assert.That(evento.DataReferencia, Is.EqualTo(DateOnly.FromDateTime(request.DataLancamento)));
+        await repositorio.Received(1).AdicionarAsync(
+            Arg.Is<Lancamento>(x =>
+                x.Id == response.Id &&
+                x.Valor == request.Valor &&
+                x.Tipo == request.Tipo &&
+                x.DataLancamento == request.DataLancamento &&
+                x.Descricao == request.Descricao),
+            Arg.Any<CancellationToken>());
+        await repositorio.Received(1).SalvarAlteracoesAsync(Arg.Any<CancellationToken>());
+        await eventBus.Received(1).PublicarAsync(
+            Arg.Is<LancamentoCriadoEvent>(x =>
+                x.LancamentoId == response.Id &&
+                x.Valor == request.Valor &&
+                x.Tipo == request.Tipo &&
+                x.DataReferencia == DateOnly.FromDateTime(request.DataLancamento)),
+            Arg.Any<CancellationToken>());
     }
 
     [TestCase(0)]
     [TestCase(-1)]
-    public void ExecutarAsync_QuandoValorForInvalido_DeveLancarExcecao(decimal valorInvalido)
+    public async Task ExecutarAsync_QuandoValorForInvalido_DeveLancarExcecao(decimal valorInvalido)
     {
         // Arrange
-        var repositorio = new LancamentoRepositorioEmMemoria();
-        var eventBus = new EventBusEmMemoria();
+        var repositorio = Substitute.For<ILancamentoRepositorio>();
+        var eventBus = Substitute.For<ILancamentoCriadoEventBus>();
         var service = new CriarLancamentoService(repositorio, eventBus);
         var request = new CriarLancamentoRequest
         {
@@ -60,67 +68,8 @@ public class CriarLancamentoServiceTests
 
         // Assert
         Assert.That(Acao, Throws.TypeOf<ArgumentOutOfRangeException>());
-        Assert.That(repositorio.LancamentosPersistidos, Is.Empty);
-        Assert.That(eventBus.EventosPublicados, Is.Empty);
-    }
-
-    private sealed class LancamentoRepositorioEmMemoria : ILancamentoRepositorio
-    {
-        public List<Lancamento> LancamentosPersistidos { get; } = new();
-        public bool SalvarAlteracoesChamado { get; private set; }
-
-        public Task AdicionarAsync(Lancamento lancamento, CancellationToken cancellationToken = default)
-        {
-            LancamentosPersistidos.Add(lancamento);
-            return Task.CompletedTask;
-        }
-
-        public Task AtualizarAsync(Lancamento lancamento, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task RemoverAsync(Lancamento lancamento, CancellationToken cancellationToken = default)
-        {
-            LancamentosPersistidos.Remove(lancamento);
-            return Task.CompletedTask;
-        }
-
-        public Task<Lancamento?> ObterPorIdAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            var lancamento = LancamentosPersistidos.FirstOrDefault(x => x.Id == id);
-            return Task.FromResult(lancamento);
-        }
-
-        public Task<IReadOnlyList<Lancamento>> ListarAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<IReadOnlyList<Lancamento>>(LancamentosPersistidos.AsReadOnly());
-        }
-
-        public Task<int> SalvarAlteracoesAsync(CancellationToken cancellationToken = default)
-        {
-            SalvarAlteracoesChamado = true;
-            return Task.FromResult(1);
-        }
-    }
-
-    private sealed class EventBusEmMemoria : ILancamentoCriadoEventBus
-    {
-        public List<LancamentoCriadoEvent> EventosPublicados { get; } = new();
-
-        public ValueTask PublicarAsync(
-            LancamentoCriadoEvent evento,
-            CancellationToken cancellationToken = default)
-        {
-            EventosPublicados.Add(evento);
-            return ValueTask.CompletedTask;
-        }
-
-        public async IAsyncEnumerable<LancamentoCriadoEvent> ConsumirAsync(
-            [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            await Task.CompletedTask;
-            yield break;
-        }
+        await repositorio.Received(0).AdicionarAsync(Arg.Any<Lancamento>(), Arg.Any<CancellationToken>());
+        await repositorio.Received(0).SalvarAlteracoesAsync(Arg.Any<CancellationToken>());
+        await eventBus.Received(0).PublicarAsync(Arg.Any<LancamentoCriadoEvent>(), Arg.Any<CancellationToken>());
     }
 }
