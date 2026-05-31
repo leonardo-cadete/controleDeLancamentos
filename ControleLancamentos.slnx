@@ -5,4 +5,8 @@
     <Project Path="src/ControleLancamentos.Domain/ControleLancamentos.Domain.csproj" />
     <Project Path="src/ControleLancamentos.Infrastructure/ControleLancamentos.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ControleLancamentos.Application.Tests/ControleLancamentos.Application.Tests.csproj" />
+    <Project Path="tests/ControleLancamentos.Domain.Tests/ControleLancamentos.Domain.Tests.csproj" />
+  </Folder>
 </Solution>
